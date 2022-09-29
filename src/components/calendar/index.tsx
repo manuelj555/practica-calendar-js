@@ -1,17 +1,13 @@
-import Day from './Day'
+import Day, { DayItem } from './Day'
 import DayHeader from './DayHeader'
 import moment from 'moment'
 import { useMemo } from 'react'
+import { CalendarEvent } from './Event'
 
 type CalendarProps = {
   month?: number,
-}
-
-type DayItem = {
-  id: string,
-  month: number,
-  day: number,
-  isCurrentMonth: boolean,
+  year?: number,
+  events?: Array<CalendarEvent>,
 }
 
 const week = [
@@ -24,29 +20,34 @@ const week = [
   'Domingo',
 ]
 
-const Calendar = ({ month }: CalendarProps) => {
+const getValidEvents = (day: DayItem, events: Array<CalendarEvent>): Array<CalendarEvent> => {
+  return events.filter(event => (
+    day.date.isBetween(event.startDate, event.endDate, 'day', '[]')
+  ))
+}
+
+const Calendar = ({ month, year, events }: CalendarProps) => {
   const {
     currentMonth,
     days,
   } = useMemo(() => {
-    const currentMonth: number = month ?? moment().month() + 1
-    const firstDayOfMonthInWeek: number = moment().month(currentMonth - 1).date(1).day()
+    const currentMonth: number = month ?? moment().month()
+    const currentYear: number = year ?? moment().year()
+    const firstDayOfMonthInWeek: number = moment().year(currentYear).month(currentMonth).date(1).day() - 1
     const initialDateToShow: string = moment()
-      .month(currentMonth - 1)
+      .year(currentYear)
+      .month(currentMonth)
       .date(1)
       .subtract(firstDayOfMonthInWeek, 'days')
       .format()
-
-    console.log({ currentMonth, initialDateToShow })
 
     const days = Array.from(new Array(42).keys()).map(day => {
       const dateMoment = moment(initialDateToShow).add(day, 'days')
       const date = dateMoment.toObject()
       return {
         id: dateMoment.format(),
-        month: date.months,
-        day: date.date,
-        isCurrentMonth: date.months === (currentMonth - 1),
+        date: dateMoment,
+        isCurrentMonth: date.months === (currentMonth) && date.years === year,
       } as DayItem
     })
 
@@ -54,18 +55,20 @@ const Calendar = ({ month }: CalendarProps) => {
       currentMonth,
       days,
     }
-  }, [month])
+  }, [month, year])
 
   return (
-    <div className='grid grid-cols-7 gap-2'>
+    <div className='grid grid-cols-7'>
       {week.map(title => (
         <DayHeader key={title}>{title}</DayHeader>
       ))}
 
       {days.map((day: DayItem) => (
-        <Day disabled={!day.isCurrentMonth} key={day.id}>
-          {day.day}
-        </Day>
+        <Day
+          key={day.id}
+          day={day}
+          events={getValidEvents(day, events ?? [])}
+        />
       ))}
     </div>
   )
