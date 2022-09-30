@@ -29,3 +29,32 @@
 .reverse .calendar-transition-exit-active {
   translate: -100vw;
 }
+
+.modal-effect-enter {
+  opacity: .2;
+}
+.modal-effect-enter-active {
+  opacity: 1;
+  transition: all ease 300ms;
+}
+.modal-effect-exit {
+  opacity: 1;
+}
+.modal-effect-exit-active {
+  opacity: .2;
+  transition: all ease 300ms;
+}
+.modal-effect-enter .dialog-content {
+  translate: 0 -100vh;
+}
+.modal-effect-enter-active .dialog-content {
+  translate: 0 0;
+  transition: all ease 300ms;
+}
+.modal-effect-exit .dialog-content {
+  translate: 0 0;
+}
+.modal-effect-exit-active .dialog-content {
+  translate: 0 -50vh;
+  transition: all ease 300ms;
+}

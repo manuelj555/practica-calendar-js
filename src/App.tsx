@@ -10,7 +10,7 @@ const showMonthName = (month: number): string => {
   return moment().month(month).format('MMMM')
 }
 
-const events: Array<CalendarEvent> = [
+const defaultEvents: Array<CalendarEvent> = [
   { id: '3', title: 'Tercer Evento', startDate: new Date('2022/09/14'), endDate: new Date('2022/09/17') },
   { id: '1', title: 'Primer Evento', startDate: new Date('2022/09/17'), endDate: new Date('2022/09/20') },
   { id: '2', title: 'Segundo Evento', startDate: new Date('2022/09/20'), endDate: new Date('2022/09/20') },
@@ -21,6 +21,7 @@ function App() {
   const [month, setMonth] = useState<number>(() => moment().month())
   const [year, setYear] = useState<number>(() => moment().year())
   const [previousMonth, setPreviousMonth] = useState<number>(() => month)
+  const [events, setEvents] = useState<Array<CalendarEvent>>(() => defaultEvents)
 
   const changeMonth = (newMonth: number): void => {
     if (newMonth > 11) {
@@ -64,6 +65,7 @@ function App() {
               month={month}
               year={year}
               events={events}
+              handleAddEvent={(event: CalendarEvent) => setEvents(e => [...e, event])}
             />
           </div>
         </CSSTransition>

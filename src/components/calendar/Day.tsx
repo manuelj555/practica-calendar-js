@@ -7,6 +7,7 @@ import MissingEvent from './MissingEvent'
 type DayProps = {
   day: DayItem,
   events?: Array<CalendarEvent>,
+  handleAddEvent: (day: DayItem) => void,
 }
 
 export type DayItem = {
@@ -28,15 +29,20 @@ const buildEventsToShow = (events: CalendarEvent[]): CalendarEvent[] => {
 }
 
 
-const Day = ({ day, events = [] }: DayProps) => {
+const Day = ({ day, events = [], handleAddEvent }: DayProps) => {
   const eventsToShow = buildEventsToShow(events)
   const emptyEvents = new Array(3 - eventsToShow.length).fill(null)
+
+  const handleDayClick = () => {
+    handleAddEvent(day)
+  }
 
   return (
     <div className={`border border-gray-100 font-semibold aspect-square ${!day.isCurrentMonth
       ? 'bg-green-100 text-blue-500'
       : 'bg-green-300 text-blue-700 hover:bg-green-400'
-      }`}>
+      }`}
+      onClick={handleDayClick}>
       <div className='text-lg px-1'>
         {day.date.date()}
       </div>

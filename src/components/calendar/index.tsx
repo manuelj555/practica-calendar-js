@@ -1,13 +1,17 @@
 import Day, { DayItem } from './Day'
 import DayHeader from './DayHeader'
 import moment from 'moment'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { CalendarEvent } from './Event'
+import { Modal } from '../Modal'
+import useModal from '../../hooks/useModal'
+import EventConfig from './EventConfig'
 
 type CalendarProps = {
   month?: number,
   year?: number,
   events?: Array<CalendarEvent>,
+  handleAddEvent: (event: CalendarEvent) => void,
 }
 
 const week = [
@@ -26,7 +30,7 @@ const getValidEvents = (day: DayItem, events: Array<CalendarEvent>): Array<Calen
   ))
 }
 
-const Calendar = ({ month, year, events }: CalendarProps) => {
+const Calendar = ({ month, year, events, handleAddEvent }: CalendarProps) => {
   const {
     currentMonth,
     days,
@@ -57,19 +61,43 @@ const Calendar = ({ month, year, events }: CalendarProps) => {
     }
   }, [month, year])
 
-  return (
-    <div className='grid grid-cols-7'>
-      {week.map(title => (
-        <DayHeader key={title}>{title}</DayHeader>
-      ))}
+  const eventModal = useModal()
+  const [selectedDay, setSelectedDay] = useState<DayItem | null>(null)
 
-      {days.map((day: DayItem) => (
-        <Day
-          key={day.id}
-          day={day}
-          events={getValidEvents(day, events ?? [])}
+  const handleSelectDay = (item: DayItem) => {
+    setSelectedDay(item)
+    eventModal.show()
+  }
+
+  const handleAdd = (event: CalendarEvent) => {
+    handleAddEvent(event)
+    setSelectedDay(null)
+    eventModal.hide()
+  }
+
+  return (
+    <div>
+      <div className='grid grid-cols-7'>
+        {week.map(title => (
+          <DayHeader key={title}>{title}</DayHeader>
+        ))}
+
+        {days.map((day: DayItem) => (
+          <Day
+            key={day.id}
+            day={day}
+            events={getValidEvents(day, events ?? [])}
+            handleAddEvent={handleSelectDay}
+          />
+        ))}
+      </div>
+
+      <Modal show={eventModal.visible} onHide={eventModal.hide}>
+        <EventConfig
+          handleAdd={handleAdd}
+          startDate={selectedDay?.date}
         />
-      ))}
+      </Modal>
     </div>
   )
 }
